@@ -1,0 +1,16 @@
+{
+  "name": "global-wealth-hub",
+  "version": "1.0.0",
+  "description": "Global Wealth & Risk Tools Hub - Interactive finance calculators",
+  "main": "app.js",
+  "scripts": {
+    "start": "http-server -p 8000",
+    "dev": "http-server -p 8000 -c-1"
+  },
+  "keywords": ["finance", "calculator", "wealth", "tools"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
