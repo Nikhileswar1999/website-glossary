@@ -6,9 +6,9 @@
     <title>Global Wealth & Risk Tools Hub</title>
     <meta
       name="description"
-      content="Global Wealth & Risk Tools Hub: country-aware financial calculators for loans, tax, retirement, investing, and risk planning."
+      content="Global Wealth & Risk Tools Hub: no-API calculators, country-specific finance planning tools, glossary, and risk insights for US, UK, Singapore, and India."
     />
-    <meta name="theme-color" content="#0d1321" />
+    <meta name="theme-color" content="#0a1222" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,134 +17,76 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <header class="site-header container">
-      <div class="logo">🌐 Global Wealth Hub</div>
-      <label class="search-wrap" for="globalSearch">
-        <span class="sr-only">Search finance terms or tools</span>
-        <input id="globalSearch" type="search" placeholder="Search finance terms or tools" />
-      </label>
-      <button id="themeToggle" class="btn ghost" aria-label="Toggle dark mode">🌓</button>
-    </header>
+  <body class="dark">
+    <div class="app-shell">
+      <aside class="sidebar glass">
+        <h2>Tools</h2>
+        <nav id="toolNav" class="tool-nav" aria-label="Tool navigation"></nav>
+        <div class="ad-slot">Ad zone: sidebar sponsor</div>
+      </aside>
 
-    <main>
-      <section class="hero container card">
-        <p class="eyebrow">Finance tools + learning + glossary</p>
-        <h1>Calculate Wealth. Understand Risk. Grow Smarter.</h1>
-        <p>
-          Lightweight, mobile-first calculators for the USA, UK, India, and Singapore. Includes
-          loans, retirement planning, tax, risk, and investing tools.
-        </p>
-        <div class="hero-actions">
-          <a href="#tools" class="btn">Start Calculating</a>
-          <a href="#glossary" class="btn secondary">Explore Glossary</a>
-          <a href="#learning" class="btn ghost">Learn Finance</a>
-        </div>
-      </section>
-
-      <section id="tools" class="container section">
-        <div class="section-head">
-          <h2>Interactive Finance Tools</h2>
-          <p>Instant, ad-safe calculators with country-aware defaults and logic.</p>
-        </div>
-
-        <div class="controls-row card">
-          <label>
-            Country Profile
-            <select id="countrySelector">
-              <option value="USA">USA</option>
-              <option value="UK">UK</option>
-              <option value="India">India</option>
-              <option value="Singapore">Singapore</option>
+      <div class="main-column">
+        <header class="topbar glass">
+          <div>
+            <p class="eyebrow">Global Wealth & Risk Tools Hub</p>
+            <h1>No-API Finance Dashboard</h1>
+          </div>
+          <div class="switcher-wrap">
+            <label for="countrySelector">Country</label>
+            <select id="countrySelector" aria-label="Select country profile">
+              <option value="US">United States</option>
+              <option value="UK">United Kingdom</option>
+              <option value="SG">Singapore</option>
+              <option value="IN">India</option>
             </select>
-          </label>
-          <p id="countryHint" class="muted"></p>
-        </div>
+          </div>
+        </header>
 
-        <details class="tool-section card" open>
-          <summary>🏠 Loan Ecosystem Tools</summary>
-          <div class="grid cards-2" id="loanToolGrid"></div>
-        </details>
-
-        <section class="section ad-slot" aria-label="Ad placement">
-          <div class="ad-box">Ad space (loan and mortgage providers)</div>
+        <section class="dash-row">
+          <article class="glass metric-card">
+            <h3>Financial Score</h3>
+            <p id="financialScore">0 / 100</p>
+          </article>
+          <article class="glass metric-card">
+            <h3>Daily Tip</h3>
+            <p id="dailyTip"></p>
+          </article>
+          <article class="glass metric-card toggles">
+            <button id="eli12Btn" class="btn">Explain Like I'm 12</button>
+            <button id="advancedBtn" class="btn ghost">Advanced Mode</button>
+          </article>
         </section>
 
-        <details class="tool-section card" open>
-          <summary>🧓 Retirement Planning Tools</summary>
-          <div class="grid cards-2" id="retirementToolGrid"></div>
-        </details>
+        <main id="dashboard" class="dashboard"></main>
 
-        <details class="tool-section card" open>
-          <summary>📊 Tax & Income Tools</summary>
-          <div class="grid cards-2" id="taxToolGrid"></div>
-        </details>
-
-        <details class="tool-section card" open>
-          <summary>📈 Investing & Risk Tools</summary>
-          <div class="grid cards-2" id="investToolGrid"></div>
-        </details>
-      </section>
-
-      <section id="glossary" class="container section">
-        <div class="section-head">
-          <h2>Country-Based Finance Glossary</h2>
-          <p>
-            Definitions are simplified for fast understanding. Switch countries to see market-
-            specific terms.
-          </p>
-        </div>
-        <div class="tab-row" id="countryTabs"></div>
-        <div class="glossary-list" id="glossaryList"></div>
-      </section>
-
-      <section id="learning" class="container section">
-        <div class="section-head">
-          <h2>Learning Mode</h2>
-          <p>Switch between simple and advanced explanations with mini-quiz support.</p>
-        </div>
-        <div class="card learning-card">
-          <div class="learning-controls">
-            <button class="btn" id="eli12Btn">Explain Like I'm 12</button>
-            <button class="btn secondary" id="advancedBtn">Advanced Mode</button>
+        <section class="glass section-gap">
+          <div class="split-head">
+            <h2>Country Glossary (SEO)</h2>
+            <div id="glossaryTabs" class="tabs"></div>
           </div>
-          <div id="learningContent"></div>
-          <div class="quiz-wrap">
-            <p class="quiz-q">Quick Quiz: Why diversify a portfolio?</p>
-            <div class="quiz-actions">
-              <button class="btn ghost quiz" data-answer="0">To guarantee zero losses</button>
-              <button class="btn ghost quiz" data-answer="1">To spread risk across assets</button>
-            </div>
-            <p id="quizResult"></p>
-          </div>
+          <div id="glossaryList" class="glossary-grid"></div>
+        </section>
+      </div>
+
+      <aside class="right-rail glass">
+        <h2>Insights & Trends</h2>
+        <div class="panel">
+          <h3>Trending Terms</h3>
+          <ul id="trendingTerms"></ul>
         </div>
-      </section>
+        <div class="panel">
+          <h3>Portfolio Mix Chart</h3>
+          <canvas id="portfolioChart" height="200"></canvas>
+        </div>
+        <div class="panel">
+          <h3>Growth Chart</h3>
+          <canvas id="growthChart" height="200"></canvas>
+        </div>
+        <div class="ad-slot">Ad zone: in-feed insights</div>
+      </aside>
+    </div>
 
-      <section class="container section grid cards-3">
-        <article class="card stat">
-          <h3>Save Results</h3>
-          <p>Store your latest tool outputs locally for return visits.</p>
-          <button class="btn secondary" id="saveResults">Save Current Results</button>
-        </article>
-        <article class="card stat">
-          <h3>Share Results</h3>
-          <p>Copy your tool summary and send it instantly.</p>
-          <button class="btn secondary" id="shareResults">Copy Share Summary</button>
-        </article>
-        <article class="card stat">
-          <h3>Your Financial Score</h3>
-          <p id="financialScore">Score: 0 / 100</p>
-          <small>Score updates as you use tools and learning mode.</small>
-        </article>
-      </section>
-    </main>
-
-    <footer class="container footer">
-      <p>© 2026 Global Wealth & Risk Tools Hub</p>
-      <p class="note">
-        Educational only. Not financial advice. Verify with official institutions before decisions.
-      </p>
-    </footer>
+    <div class="mobile-sticky-ad">Ad zone: mobile sticky banner</div>
 
     <script src="app.js" defer></script>
   </body>
