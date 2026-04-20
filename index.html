@@ -6,7 +6,7 @@
     <title>Global Wealth & Risk Tools Hub</title>
     <meta
       name="description"
-      content="Global Wealth & Risk Tools Hub: financial calculators, country-based glossary, learning mode, and engagement tools for smarter money decisions."
+      content="Global Wealth & Risk Tools Hub: country-aware financial calculators for loans, tax, retirement, investing, and risk planning."
     />
     <meta name="theme-color" content="#0d1321" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,12 +32,12 @@
         <p class="eyebrow">Finance tools + learning + glossary</p>
         <h1>Calculate Wealth. Understand Risk. Grow Smarter.</h1>
         <p>
-          Lightweight, mobile-first, and built for high-intent finance audiences across the USA,
-          UK, Singapore, and India.
+          Lightweight, mobile-first calculators for the USA, UK, India, and Singapore. Includes
+          loans, retirement planning, tax, risk, and investing tools.
         </p>
         <div class="hero-actions">
           <a href="#tools" class="btn">Start Calculating</a>
-          <a href="#tools" class="btn secondary">Explore Tools</a>
+          <a href="#glossary" class="btn secondary">Explore Glossary</a>
           <a href="#learning" class="btn ghost">Learn Finance</a>
         </div>
       </section>
@@ -45,22 +45,53 @@
       <section id="tools" class="container section">
         <div class="section-head">
           <h2>Interactive Finance Tools</h2>
-          <p>Fast calculators designed for engagement and ad-safe result areas.</p>
+          <p>Instant, ad-safe calculators with country-aware defaults and logic.</p>
         </div>
 
-        <div class="grid cards-3" id="toolGrid"></div>
-      </section>
+        <div class="controls-row card">
+          <label>
+            Country Profile
+            <select id="countrySelector">
+              <option value="USA">USA</option>
+              <option value="UK">UK</option>
+              <option value="India">India</option>
+              <option value="Singapore">Singapore</option>
+            </select>
+          </label>
+          <p id="countryHint" class="muted"></p>
+        </div>
 
-      <section class="container section ad-slot" aria-label="Ad placement">
-        <div class="ad-box">Ad space (high CPC: loans / insurance / credit cards)</div>
+        <details class="tool-section card" open>
+          <summary>🏠 Loan Ecosystem Tools</summary>
+          <div class="grid cards-2" id="loanToolGrid"></div>
+        </details>
+
+        <section class="section ad-slot" aria-label="Ad placement">
+          <div class="ad-box">Ad space (loan and mortgage providers)</div>
+        </section>
+
+        <details class="tool-section card" open>
+          <summary>🧓 Retirement Planning Tools</summary>
+          <div class="grid cards-2" id="retirementToolGrid"></div>
+        </details>
+
+        <details class="tool-section card" open>
+          <summary>📊 Tax & Income Tools</summary>
+          <div class="grid cards-2" id="taxToolGrid"></div>
+        </details>
+
+        <details class="tool-section card" open>
+          <summary>📈 Investing & Risk Tools</summary>
+          <div class="grid cards-2" id="investToolGrid"></div>
+        </details>
       </section>
 
       <section id="glossary" class="container section">
         <div class="section-head">
           <h2>Country-Based Finance Glossary</h2>
           <p>
-            Definitions are simplified and paraphrased from regulator/exchange learning resources so
-            users can understand quickly.
+            Definitions are simplified for fast understanding. Switch countries to see market-
+            specific terms.
           </p>
         </div>
         <div class="tab-row" id="countryTabs"></div>
@@ -105,21 +136,6 @@
           <p id="financialScore">Score: 0 / 100</p>
           <small>Score updates as you use tools and learning mode.</small>
         </article>
-      </section>
-
-      <section class="container section grid cards-2">
-        <article class="card">
-          <h3>Daily Finance Tip</h3>
-          <p id="dailyTip"></p>
-        </article>
-        <article class="card">
-          <h3>Trending Terms</h3>
-          <ul id="trendingTerms"></ul>
-        </article>
-      </section>
-
-      <section class="container section ad-slot" aria-label="Ad placement">
-        <div class="ad-box">Ad space (native in-content block)</div>
       </section>
     </main>
 
