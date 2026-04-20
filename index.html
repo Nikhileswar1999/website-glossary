@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Wealth & Risk Tools Hub</title>
+    <meta
+      name="description"
+      content="Global Wealth & Risk Tools Hub: financial calculators, country-based glossary, learning mode, and engagement tools for smarter money decisions."
+    />
+    <meta name="theme-color" content="#0d1321" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header container">
+      <div class="logo">🌐 Global Wealth Hub</div>
+      <label class="search-wrap" for="globalSearch">
+        <span class="sr-only">Search finance terms or tools</span>
+        <input id="globalSearch" type="search" placeholder="Search finance terms or tools" />
+      </label>
+      <button id="themeToggle" class="btn ghost" aria-label="Toggle dark mode">🌓</button>
+    </header>
+
+    <main>
+      <section class="hero container card">
+        <p class="eyebrow">Finance tools + learning + glossary</p>
+        <h1>Calculate Wealth. Understand Risk. Grow Smarter.</h1>
+        <p>
+          Lightweight, mobile-first, and built for high-intent finance audiences across the USA,
+          UK, Singapore, and India.
+        </p>
+        <div class="hero-actions">
+          <a href="#tools" class="btn">Start Calculating</a>
+          <a href="#tools" class="btn secondary">Explore Tools</a>
+          <a href="#learning" class="btn ghost">Learn Finance</a>
+        </div>
+      </section>
+
+      <section id="tools" class="container section">
+        <div class="section-head">
+          <h2>Interactive Finance Tools</h2>
+          <p>Fast calculators designed for engagement and ad-safe result areas.</p>
+        </div>
+
+        <div class="grid cards-3" id="toolGrid"></div>
+      </section>
+
+      <section class="container section ad-slot" aria-label="Ad placement">
+        <div class="ad-box">Ad space (high CPC: loans / insurance / credit cards)</div>
+      </section>
+
+      <section id="glossary" class="container section">
+        <div class="section-head">
+          <h2>Country-Based Finance Glossary</h2>
+          <p>
+            Definitions are simplified and paraphrased from regulator/exchange learning resources so
+            users can understand quickly.
+          </p>
+        </div>
+        <div class="tab-row" id="countryTabs"></div>
+        <div class="glossary-list" id="glossaryList"></div>
+      </section>
+
+      <section id="learning" class="container section">
+        <div class="section-head">
+          <h2>Learning Mode</h2>
+          <p>Switch between simple and advanced explanations with mini-quiz support.</p>
+        </div>
+        <div class="card learning-card">
+          <div class="learning-controls">
+            <button class="btn" id="eli12Btn">Explain Like I'm 12</button>
+            <button class="btn secondary" id="advancedBtn">Advanced Mode</button>
+          </div>
+          <div id="learningContent"></div>
+          <div class="quiz-wrap">
+            <p class="quiz-q">Quick Quiz: Why diversify a portfolio?</p>
+            <div class="quiz-actions">
+              <button class="btn ghost quiz" data-answer="0">To guarantee zero losses</button>
+              <button class="btn ghost quiz" data-answer="1">To spread risk across assets</button>
+            </div>
+            <p id="quizResult"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="container section grid cards-3">
+        <article class="card stat">
+          <h3>Save Results</h3>
+          <p>Store your latest tool outputs locally for return visits.</p>
+          <button class="btn secondary" id="saveResults">Save Current Results</button>
+        </article>
+        <article class="card stat">
+          <h3>Share Results</h3>
+          <p>Copy your tool summary and send it instantly.</p>
+          <button class="btn secondary" id="shareResults">Copy Share Summary</button>
+        </article>
+        <article class="card stat">
+          <h3>Your Financial Score</h3>
+          <p id="financialScore">Score: 0 / 100</p>
+          <small>Score updates as you use tools and learning mode.</small>
+        </article>
+      </section>
+
+      <section class="container section grid cards-2">
+        <article class="card">
+          <h3>Daily Finance Tip</h3>
+          <p id="dailyTip"></p>
+        </article>
+        <article class="card">
+          <h3>Trending Terms</h3>
+          <ul id="trendingTerms"></ul>
+        </article>
+      </section>
+
+      <section class="container section ad-slot" aria-label="Ad placement">
+        <div class="ad-box">Ad space (native in-content block)</div>
+      </section>
+    </main>
+
+    <footer class="container footer">
+      <p>© 2026 Global Wealth & Risk Tools Hub</p>
+      <p class="note">
+        Educational only. Not financial advice. Verify with official institutions before decisions.
+      </p>
+    </footer>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
