@@ -96,13 +96,139 @@ function formatJSON(input) {
   return { ok: true, output: formatted, message: 'JSON formatted successfully.' };
 }
 
-function applySimpleFixes(input) {
+function normalizeSmartQuotes(input) {
   return input
-    .replace(/([{,]\s*)([A-Za-z_$][A-Za-z0-9_$]*)\s*:/g, '$1"$2":')
-    .replace(/,\s*([}\]])/g, '$1')
-    .replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"')
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'");
+}
+
+function stripBom(input) {
+  return input.replace(/^\uFEFF/, '');
+}
+
+function stripComments(input) {
+  let out = '';
+  let i = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  while (i < input.length) {
+    const ch = input[i];
+    const next = input[i + 1];
+
+    if (inString) {
+      out += ch;
+      if (escaped) {
+        escaped = false;
+      } else if (ch === '\\') {
+        escaped = true;
+      } else if (ch === quote) {
+        inString = false;
+        quote = '';
+      }
+      i += 1;
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      inString = true;
+      quote = ch;
+      out += ch;
+      i += 1;
+      continue;
+    }
+
+    if (ch === '/' && next === '/') {
+      i += 2;
+      while (i < input.length && input[i] !== '\n') i += 1;
+      continue;
+    }
+
+    if (ch === '/' && next === '*') {
+      i += 2;
+      while (i < input.length - 1 && !(input[i] === '*' && input[i + 1] === '/')) i += 1;
+      i += 2;
+      continue;
+    }
+
+    out += ch;
+    i += 1;
+  }
+
+  return out;
+}
+
+function removeTrailingCommas(input) {
+  let out = '';
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i += 1) {
+    const ch = input[i];
+
+    if (inString) {
+      out += ch;
+      if (escaped) {
+        escaped = false;
+      } else if (ch === '\\') {
+        escaped = true;
+      } else if (ch === quote) {
+        inString = false;
+        quote = '';
+      }
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      inString = true;
+      quote = ch;
+      out += ch;
+      continue;
+    }
+
+    if (ch === ',') {
+      let j = i + 1;
+      while (j < input.length && /\s/.test(input[j])) j += 1;
+      if (input[j] === '}' || input[j] === ']') continue;
+    }
+
+    out += ch;
+  }
+
+  return out;
+}
+
+function quoteUnquotedKeys(input) {
+  return input.replace(/([{,]\s*)([A-Za-z_$][A-Za-z0-9_$-]*)(\s*:)/g, '$1"$2"$3');
+}
+
+function normalizeLiterals(input) {
+  return input
     .replace(/\bTrue\b/g, 'true')
-    .replace(/\bFalse\b/g, 'false');
+    .replace(/\bFalse\b/g, 'false')
+    .replace(/\bNone\b/g, 'null')
+    .replace(/\bNaN\b/g, 'null')
+    .replace(/\bundefined\b/g, 'null');
+}
+
+function convertSingleQuotedStrings(input) {
+  return input.replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, (_, content) => `"${content.replace(/"/g, '\\"')}"`);
+}
+
+function applySimpleFixes(input) {
+  const pipeline = [
+    stripBom,
+    normalizeSmartQuotes,
+    stripComments,
+    convertSingleQuotedStrings,
+    quoteUnquotedKeys,
+    normalizeLiterals,
+    removeTrailingCommas,
+  ];
+
+  return pipeline.reduce((current, fixer) => fixer(current), input);
 }
 
 // autoFixJSON(input) -> { ok, output, message, fixed }
@@ -117,8 +243,14 @@ function autoFixJSON(input) {
     };
   }
 
-  const candidate = applySimpleFixes(input);
-  const fixedResult = validateJSON(candidate);
+  let candidate = input;
+  let fixedResult = direct;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    candidate = applySimpleFixes(candidate);
+    fixedResult = validateJSON(candidate);
+    if (fixedResult.isValid) break;
+  }
 
   if (!fixedResult.isValid) {
     return { ok: false, output: '', message: fixedResult.message, fixed: false };
