@@ -1,6 +1,7 @@
 const inputEditor = document.getElementById('inputEditor');
 const outputEditor = document.getElementById('outputEditor');
 const statusBox = document.getElementById('status');
+const errorBox = document.getElementById('errorBox');
 const inputLines = document.getElementById('inputLines');
 const outputLines = document.getElementById('outputLines');
 const indentSelect = document.getElementById('indentSelect');
@@ -11,133 +12,214 @@ const fileInput = document.getElementById('fileInput');
 const STORAGE_KEY = 'json-tool-last-input-v1';
 const THEME_KEY = 'json-tool-theme-v1';
 
-const escapeHtml = (value) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
 function setStatus(message, type = '') {
   statusBox.className = `status ${type}`.trim();
   statusBox.textContent = message;
 }
 
-function updateLineNumbers(editor, lineEl) {
-  const lines = editor.value ? editor.value.split('\n').length : 1;
+function showError(message = '') {
+  if (!message) {
+    errorBox.hidden = true;
+    errorBox.textContent = '';
+    return;
+  }
+
+  errorBox.hidden = false;
+  errorBox.textContent = message;
+}
+
+function updateLineNumbersFromText(text, lineEl) {
+  const lines = text ? text.split('\n').length : 1;
   lineEl.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
 }
 
+function updateInputLineNumbers() {
+  updateLineNumbersFromText(inputEditor.value, inputLines);
+}
+
 function updateOutputLineNumbers() {
-  const lines = outputEditor.textContent ? outputEditor.textContent.split('\n').length : 1;
-  outputLines.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+  updateLineNumbersFromText(outputEditor.value, outputLines);
 }
 
-function syntaxHighlight(jsonText) {
-  return escapeHtml(jsonText).replace(
-    /("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"\s*:?)|(\btrue\b|\bfalse\b)|(\bnull\b)|(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)/g,
-    (match, stringToken, boolToken, nullToken, numberToken) => {
-      if (stringToken) {
-        const cls = stringToken.endsWith(':') ? 'json-key' : 'json-string';
-        return `<span class="${cls}">${stringToken}</span>`;
-      }
-      if (boolToken) return `<span class="json-boolean">${boolToken}</span>`;
-      if (nullToken) return `<span class="json-null">${nullToken}</span>`;
-      if (numberToken) return `<span class="json-number">${numberToken}</span>`;
-      return match;
-    }
-  );
-}
-
-function detectSuggestion(text) {
-  if (/Unexpected token .* in JSON at position/.test(text)) {
-    return 'Check for missing commas, extra trailing commas, or invalid quotes around keys/strings.';
-  }
-  if (/Unexpected end of JSON input/.test(text)) {
-    return 'Likely an unclosed brace/bracket or missing value at the end of the document.';
-  }
-  if (/Expected property name or '\}'/.test(text)) {
-    return 'Property names must use double quotes, for example: {"name": "value"}.';
-  }
-  return 'Review nearby line for unclosed braces, missing commas, or use of single quotes.';
-}
-
-function buildErrorInfo(rawInput, error) {
+function getErrorLocation(rawInput, error) {
   const match = /position\s(\d+)/i.exec(error.message);
   const position = match ? Number(match[1]) : -1;
 
   if (position < 0) {
-    return {
-      line: '?',
-      column: '?',
-      preview: escapeHtml(rawInput.slice(0, 150)),
-      summary: error.message,
-    };
+    return { line: '?', column: '?' };
   }
 
   const before = rawInput.slice(0, position);
   const line = before.split('\n').length;
   const lineStart = before.lastIndexOf('\n') + 1;
   const column = position - lineStart + 1;
+  return { line, column };
+}
 
-  const lineText = rawInput.split('\n')[line - 1] ?? '';
-  const safeLine = escapeHtml(lineText);
-  const left = safeLine.slice(0, column - 1);
-  const bad = safeLine.slice(column - 1, column) || ' ';
-  const right = safeLine.slice(column);
+// validateJSON(input) -> { isValid, parsed, error, message }
+function validateJSON(input) {
+  try {
+    const parsed = JSON.parse(input);
+    return { isValid: true, parsed, error: null, message: 'Valid JSON ✅' };
+  } catch (error) {
+    const { line, column } = getErrorLocation(input, error);
+    return {
+      isValid: false,
+      parsed: null,
+      error,
+      message: `Invalid JSON at line ${line}, column ${column}: ${error.message}`,
+    };
+  }
+}
+
+// formatJSON(input) -> { ok, output, message }
+function formatJSON(input) {
+  const result = validateJSON(input);
+  if (!result.isValid) {
+    return { ok: false, output: '', message: result.message };
+  }
+
+  const formatted = JSON.stringify(result.parsed, null, Number(indentSelect.value));
+  return { ok: true, output: formatted, message: 'JSON formatted successfully.' };
+}
+
+function applySimpleFixes(input) {
+  return input
+    .replace(/([{,]\s*)([A-Za-z_$][A-Za-z0-9_$]*)\s*:/g, '$1"$2":')
+    .replace(/,\s*([}\]])/g, '$1')
+    .replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"')
+    .replace(/\bTrue\b/g, 'true')
+    .replace(/\bFalse\b/g, 'false');
+}
+
+// autoFixJSON(input) -> { ok, output, message, fixed }
+function autoFixJSON(input) {
+  const direct = validateJSON(input);
+  if (direct.isValid) {
+    return {
+      ok: true,
+      output: JSON.stringify(direct.parsed, null, Number(indentSelect.value)),
+      message: 'Input was already valid JSON ✅',
+      fixed: false,
+    };
+  }
+
+  const candidate = applySimpleFixes(input);
+  const fixedResult = validateJSON(candidate);
+
+  if (!fixedResult.isValid) {
+    return { ok: false, output: '', message: fixedResult.message, fixed: false };
+  }
 
   return {
-    line,
-    column,
-    summary: error.message,
-    preview: `${left}<span class="error-mark">${bad}</span>${right}`,
+    ok: true,
+    output: JSON.stringify(fixedResult.parsed, null, Number(indentSelect.value)),
+    message: 'Auto-fix applied and JSON is now valid ✅',
+    fixed: true,
   };
 }
 
-function tryAutoFix(value) {
-  return value
-    .replace(/,\s*([}\]])/g, '$1')
-    .replace(/([{,]\s*)'([^']+)'\s*:/g, '$1"$2":')
-    .replace(/:\s*'([^']*)'/g, ': "$1"');
+function renderOutput(text) {
+  outputEditor.value = text;
+  updateOutputLineNumbers();
 }
 
-function processJson(mode = 'validate') {
+function clearOutput() {
+  renderOutput('');
+}
+
+function runValidation() {
   const raw = inputEditor.value;
   localStorage.setItem(STORAGE_KEY, raw);
 
   if (!raw.trim()) {
-    outputEditor.textContent = '';
-    updateOutputLineNumbers();
-    setStatus('Enter JSON to begin.', '');
+    clearOutput();
+    showError('');
+    setStatus('Enter JSON to begin.');
     return;
   }
 
-  const candidate = autofixToggle.checked ? tryAutoFix(raw) : raw;
+  const result = validateJSON(raw);
 
-  try {
-    const parsed = JSON.parse(candidate);
-    const formatted = JSON.stringify(parsed, null, Number(indentSelect.value));
-    outputEditor.innerHTML = syntaxHighlight(formatted);
-    updateOutputLineNumbers();
-
-    const message = mode === 'format' ? 'JSON formatted successfully.' : 'Valid JSON.';
-    const fixedHint = candidate !== raw ? ' Auto-fix applied safe corrections.' : '';
-    setStatus(`${message}${fixedHint}`, 'success');
-  } catch (error) {
-    const details = buildErrorInfo(raw, error);
-    const suggestion = detectSuggestion(error.message);
-    outputEditor.innerHTML = [
-      `<strong>Validation error</strong>`,
-      `Line ${details.line}, Column ${details.column}`,
-      details.summary,
-      '',
-      details.preview,
-      '',
-      `Suggestion: ${suggestion}`,
-    ].join('\n');
-    updateOutputLineNumbers();
-    setStatus(`Invalid JSON at line ${details.line}, column ${details.column}.`, 'error');
+  if (result.isValid) {
+    showError('');
+    setStatus(result.message, 'success');
+    return;
   }
+
+  showError(result.message);
+  setStatus('JSON is invalid.', 'error');
 }
+
+function runFormat() {
+  const raw = inputEditor.value;
+  localStorage.setItem(STORAGE_KEY, raw);
+
+  if (!raw.trim()) {
+    clearOutput();
+    showError('');
+    setStatus('Enter JSON to begin.');
+    return;
+  }
+
+  const result = formatJSON(raw);
+
+  if (result.ok) {
+    renderOutput(result.output);
+    showError('');
+    setStatus(result.message, 'success');
+    return;
+  }
+
+  clearOutput();
+  showError(result.message);
+  setStatus('Cannot format invalid JSON.', 'error');
+}
+
+function runAutofix() {
+  const raw = inputEditor.value;
+  localStorage.setItem(STORAGE_KEY, raw);
+
+  if (!raw.trim()) {
+    clearOutput();
+    showError('');
+    setStatus('Enter JSON to begin.');
+    return;
+  }
+
+  const result = autoFixJSON(raw);
+
+  if (result.ok) {
+    renderOutput(result.output);
+    showError('');
+    setStatus(result.message, 'success');
+    return;
+  }
+
+  clearOutput();
+  showError(result.message);
+  setStatus('Auto-fix could not repair this JSON.', 'error');
+}
+
+function debounce(fn, delay = 300) {
+  let timer;
+  return (...args) => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => fn(...args), delay);
+  };
+}
+
+function handleRealtime() {
+  if (!realtimeToggle.checked) return;
+  if (autofixToggle.checked) {
+    runAutofix();
+    return;
+  }
+
+  runValidation();
+}
+
+const debouncedRealtime = debounce(handleRealtime, 300);
 
 function loadFile(file) {
   if (!file) return;
@@ -145,26 +227,27 @@ function loadFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     inputEditor.value = String(reader.result ?? '');
-    updateLineNumbers(inputEditor, inputLines);
-    processJson('validate');
+    updateInputLineNumbers();
+    if (realtimeToggle.checked) handleRealtime();
   };
   reader.readAsText(file);
 }
 
-document.getElementById('validateBtn').addEventListener('click', () => processJson('validate'));
-document.getElementById('formatBtn').addEventListener('click', () => processJson('format'));
+document.getElementById('validateBtn').addEventListener('click', runValidation);
+document.getElementById('formatBtn').addEventListener('click', runFormat);
+document.getElementById('autofixBtn').addEventListener('click', runAutofix);
 
 document.getElementById('clearBtn').addEventListener('click', () => {
   inputEditor.value = '';
-  outputEditor.textContent = '';
+  clearOutput();
+  showError('');
   localStorage.removeItem(STORAGE_KEY);
-  updateLineNumbers(inputEditor, inputLines);
-  updateOutputLineNumbers();
-  setStatus('Cleared.', '');
+  updateInputLineNumbers();
+  setStatus('Cleared.');
 });
 
 document.getElementById('copyBtn').addEventListener('click', async () => {
-  const text = outputEditor.textContent;
+  const text = outputEditor.value;
   if (!text.trim()) {
     setStatus('No output to copy.', 'error');
     return;
@@ -175,7 +258,7 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 });
 
 document.getElementById('downloadBtn').addEventListener('click', () => {
-  const text = outputEditor.textContent;
+  const text = outputEditor.value;
   if (!text.trim()) {
     setStatus('No output to download.', 'error');
     return;
@@ -192,14 +275,12 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
 });
 
 inputEditor.addEventListener('input', () => {
-  updateLineNumbers(inputEditor, inputLines);
-  if (realtimeToggle.checked) processJson('validate');
+  updateInputLineNumbers();
+  debouncedRealtime();
 });
 
 inputEditor.addEventListener('scroll', () => {
   inputLines.scrollTop = inputEditor.scrollTop;
-  outputEditor.scrollTop = inputEditor.scrollTop;
-  outputLines.scrollTop = inputEditor.scrollTop;
 });
 
 outputEditor.addEventListener('scroll', () => {
@@ -207,11 +288,17 @@ outputEditor.addEventListener('scroll', () => {
 });
 
 indentSelect.addEventListener('change', () => {
-  if (realtimeToggle.checked) processJson('format');
+  if (!outputEditor.value.trim()) return;
+
+  const source = autofixToggle.checked ? inputEditor.value : outputEditor.value;
+  const reformatted = formatJSON(source);
+  if (reformatted.ok) {
+    renderOutput(reformatted.output);
+  }
 });
 
 autofixToggle.addEventListener('change', () => {
-  if (realtimeToggle.checked) processJson('validate');
+  if (realtimeToggle.checked) debouncedRealtime();
 });
 
 fileInput.addEventListener('change', (event) => {
@@ -244,5 +331,6 @@ applyTheme(savedTheme);
 
 const savedInput = localStorage.getItem(STORAGE_KEY) || '';
 inputEditor.value = savedInput;
-updateLineNumbers(inputEditor, inputLines);
-processJson('validate');
+updateInputLineNumbers();
+updateOutputLineNumbers();
+setStatus('Waiting for input…');
