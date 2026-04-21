@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Formatter & Validator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app" id="app">
+      <header class="app-header">
+        <div>
+          <h1>JSON Formatter + Validator</h1>
+          <p>Format, validate, and troubleshoot JSON instantly in your browser.</p>
+        </div>
+        <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle theme">
+          Toggle theme
+        </button>
+      </header>
+
+      <section class="toolbar" aria-label="JSON tools">
+        <label class="btn btn-secondary" for="fileInput">Upload JSON</label>
+        <input id="fileInput" type="file" accept="application/json,.json,text/plain" hidden />
+
+        <button id="validateBtn" class="btn" type="button">Validate JSON</button>
+        <button id="formatBtn" class="btn" type="button">Format / Beautify</button>
+        <button id="clearBtn" class="btn btn-secondary" type="button">Clear</button>
+        <button id="copyBtn" class="btn btn-secondary" type="button">Copy output</button>
+        <button id="downloadBtn" class="btn btn-secondary" type="button">Download JSON</button>
+
+        <label class="control-label" for="indentSelect">Indent</label>
+        <select id="indentSelect" class="select">
+          <option value="2">2 spaces</option>
+          <option value="3">3 spaces</option>
+          <option value="4" selected>4 spaces</option>
+        </select>
+
+        <label class="toggle"><input id="realtimeToggle" type="checkbox" checked /> Real-time</label>
+        <label class="toggle"><input id="autofixToggle" type="checkbox" /> Auto-fix simple issues</label>
+      </section>
+
+      <p id="dropHint" class="drop-hint">Tip: Drag & drop a JSON file anywhere on this page.</p>
+
+      <section class="panes" aria-label="JSON input and output">
+        <article class="pane">
+          <h2>Input JSON</h2>
+          <div class="editor-shell">
+            <pre id="inputLines" class="line-numbers" aria-hidden="true">1</pre>
+            <textarea id="inputEditor" spellcheck="false" placeholder="Paste or type JSON here..."></textarea>
+          </div>
+        </article>
+
+        <article class="pane">
+          <h2>Output</h2>
+          <div class="editor-shell output-shell">
+            <pre id="outputLines" class="line-numbers" aria-hidden="true">1</pre>
+            <pre id="outputEditor" class="output" aria-live="polite"></pre>
+          </div>
+          <div id="status" class="status">Waiting for input…</div>
+        </article>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
