@@ -1,19 +1,30 @@
 # website-glossary
 
-Phase 1 implementation: a fast, client-side **JSON Formatter + Validator + Auto-Fix Tool** with a dual-pane editor UI.
+JSON Workbench starter app with a sidebar-based multi-tool interface.
 
-## Features
+## Included tools
 
-- JSON format/beautify with 2, 3, or 4 space indentation
-- JSON validation with line/column-aware error output
-- JSON format/beautify output using configurable indentation
-- Auto-fix button for simple issues (unquoted keys, trailing commas, single quotes, True/False)
-- Optional real-time validation + auto-fix mode with 300ms debounce
-- Upload and drag-drop JSON files
-- Copy output and download formatted JSON
-- Autosave input and theme preference in local storage
-- Light and dark mode support
+- Formatter
+- Validator
+- Pretty Print
+- Minify
+- Stringify (plain text to JSON string)
+- To One Line
+- Editor mode (format + validate flow)
+
+## Shared JSON engine
+
+`json-engine.js` exposes shared operations used by every tab to avoid duplicated parsing/format/minify logic.
+
+## Utility features
+
+- Copy output
+- Download output
+- Clear editors
+- Upload JSON file
+- Theme toggle
+- Local storage persistence
 
 ## Run locally
 
-Open `index.html` directly in your browser.
+Open `index.html` in any modern browser.
