@@ -17,6 +17,19 @@ function setStatus(message, type = '') {
   statusBox.textContent = message;
 }
 
+let statusResetTimer;
+function flashStatus(message, type = 'success', duration = 2500) {
+  const previousMessage = statusBox.textContent;
+  const previousClassName = statusBox.className;
+  setStatus(message, type);
+
+  window.clearTimeout(statusResetTimer);
+  statusResetTimer = window.setTimeout(() => {
+    statusBox.className = previousClassName;
+    statusBox.textContent = previousMessage;
+  }, duration);
+}
+
 function showError(message = '') {
   if (!message) {
     errorBox.hidden = true;
@@ -142,11 +155,13 @@ function runValidation() {
   const result = validateJSON(raw);
 
   if (result.isValid) {
+    renderOutput(JSON.stringify(result.parsed, null, Number(indentSelect.value)));
     showError('');
     setStatus(result.message, 'success');
     return;
   }
 
+  renderOutput(`Invalid JSON ❌ ${result.error.message}`);
   showError(result.message);
   setStatus('JSON is invalid.', 'error');
 }
@@ -253,8 +268,12 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     return;
   }
 
-  await navigator.clipboard.writeText(text);
-  setStatus('Output copied to clipboard.', 'success');
+  try {
+    await navigator.clipboard.writeText(text);
+    flashStatus('Copied to clipboard ✅', 'success');
+  } catch (error) {
+    setStatus('Copy failed. Clipboard permissions may be blocked.', 'error');
+  }
 });
 
 document.getElementById('downloadBtn').addEventListener('click', () => {
