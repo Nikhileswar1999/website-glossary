@@ -1,0 +1,172 @@
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --text: #1a2433;
+  --muted: #6f7a89;
+  --border: #d8dee7;
+  --accent: #2f6feb;
+  --success: #198754;
+  --error: #d93025;
+  --warning: #b45309;
+  --lines-bg: #f8fafc;
+  --key: #0b7285;
+  --string: #0f766e;
+  --number: #7c3aed;
+  --bool: #be185d;
+  --null: #9333ea;
+}
+
+body.dark {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --text: #e6edf3;
+  --muted: #9aa4b2;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --success: #3fb950;
+  --error: #ff7b72;
+  --warning: #d29922;
+  --lines-bg: #11161d;
+  --key: #79c0ff;
+  --string: #a5d6ff;
+  --number: #d2a8ff;
+  --bool: #ff9bce;
+  --null: #c297ff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 1200px;
+  margin: 1.2rem auto;
+  padding: 0 1rem 1rem;
+}
+
+.topbar, .toolbar {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: .8rem;
+}
+.topbar { justify-content: space-between; }
+h1 { font-size: 1.35rem; margin: 0; }
+h2 { font-size: 1rem; margin: 0 0 .45rem 0; color: var(--muted); }
+
+button, .file-btn, select {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .5rem .75rem;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+button:hover, .file-btn:hover { border-color: var(--accent); }
+
+.inline-option { color: var(--muted); }
+.check-option { display: inline-flex; align-items: center; gap: .35rem; color: var(--muted); }
+
+.status {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: .6rem .8rem;
+  border-radius: .5rem;
+  margin-bottom: .8rem;
+}
+.status-success { color: var(--success); border-color: color-mix(in srgb, var(--success) 38%, var(--border)); }
+.status-error { color: var(--error); border-color: color-mix(in srgb, var(--error) 35%, var(--border)); }
+.status-warning { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, var(--border)); }
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: .6rem;
+  padding: .75rem;
+  color: var(--muted);
+  margin-bottom: .8rem;
+  text-align: center;
+}
+.drop-zone.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+
+.panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .8rem;
+}
+.pane {
+  min-width: 0;
+}
+
+.editor {
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  min-height: 420px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.lines {
+  margin: 0;
+  padding: .8rem .4rem;
+  line-height: 1.4;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  background: var(--lines-bg);
+  text-align: right;
+  user-select: none;
+  overflow: hidden;
+}
+textarea, .output {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  margin: 0;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  background: transparent;
+  color: var(--text);
+  font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  padding: .8rem;
+  tab-size: 2;
+  overflow: auto;
+  white-space: pre;
+}
+.output { white-space: pre; }
+.output .key { color: var(--key); }
+.output .string { color: var(--string); }
+.output .number { color: var(--number); }
+.output .boolean { color: var(--bool); }
+.output .null { color: var(--null); }
+
+.theme-toggle-wrap { display: inline-flex; align-items: center; gap: .55rem; color: var(--muted); }
+.switch { position: relative; width: 42px; height: 24px; }
+.switch input { display: none; }
+.slider {
+  position: absolute; inset: 0;
+  background: #8593a3;
+  border-radius: 12px;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s ease;
+}
+.switch input:checked + .slider::before { transform: translateX(18px); }
+.switch input:checked + .slider { background: var(--accent); }
+
+@media (max-width: 900px) {
+  .panes { grid-template-columns: 1fr; }
+}

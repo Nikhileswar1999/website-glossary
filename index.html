@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Formatter & Validator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <h1>JSON Formatter & Validator</h1>
+        <div class="theme-toggle-wrap">
+          <label class="switch" for="themeToggle">
+            <input id="themeToggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+          <span id="themeLabel">Dark mode</span>
+        </div>
+      </header>
+
+      <section class="toolbar" aria-label="Editor tools">
+        <label class="file-btn" for="fileInput">Upload JSON</label>
+        <input id="fileInput" type="file" accept="application/json,.json,.txt" hidden />
+
+        <button id="validateBtn" type="button">Validate JSON</button>
+        <button id="formatBtn" type="button">Format JSON</button>
+        <button id="clearBtn" type="button">Clear</button>
+        <button id="copyBtn" type="button">Copy Output</button>
+        <button id="downloadBtn" type="button">Download JSON</button>
+
+        <label class="inline-option" for="indentSelect">Indent</label>
+        <select id="indentSelect" aria-label="Indent size">
+          <option value="2">2 spaces</option>
+          <option value="3">3 spaces</option>
+          <option value="4" selected>4 spaces</option>
+        </select>
+
+        <label class="check-option">
+          <input id="realtimeToggle" type="checkbox" checked />
+          Real-time formatting
+        </label>
+
+        <label class="check-option">
+          <input id="autofixToggle" type="checkbox" />
+          Auto-fix simple issues
+        </label>
+      </section>
+
+      <section id="dropZone" class="drop-zone" aria-label="Drop JSON files here">
+        Drag & drop a JSON file here, or use Upload JSON.
+      </section>
+
+      <section id="status" class="status status-neutral" role="status" aria-live="polite">
+        Paste JSON on the left to validate or format.
+      </section>
+
+      <section class="panes" aria-label="JSON editor">
+        <article class="pane">
+          <h2>Input JSON</h2>
+          <div class="editor">
+            <pre id="inputLines" class="lines" aria-hidden="true">1</pre>
+            <textarea id="inputArea" spellcheck="false" placeholder="{\n  \"message\": \"Paste your JSON here\"\n}"></textarea>
+          </div>
+        </article>
+
+        <article class="pane">
+          <h2>Output / Validation</h2>
+          <div class="editor output-editor">
+            <pre id="outputLines" class="lines" aria-hidden="true">1</pre>
+            <pre id="outputArea" class="output" tabindex="0"></pre>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
